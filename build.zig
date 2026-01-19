@@ -1,51 +1,49 @@
 const std = @import("std");
 
-const pkgs = struct {
-    const zigr = std.build.Pkg{
-        .name = "zigr",
-        .source = .{ .path = "src/main.zig" },
-    };
-};
+fn apply(b: *std.Build, lib: *std.Build.Step.Compile) void {
+    lib.root_module.link_libc = true;
+    lib.root_module.addIncludePath(b.path("libs/tigr"));
+    lib.root_module.addCSourceFile(.{ .file = b.path("libs/tigr/tigr.c") });
+    lib.root_module.linkSystemLibrary("X11", .{});
+    lib.root_module.linkSystemLibrary("GL", .{});
+    lib.root_module.linkSystemLibrary("GLU", .{});
+}
 
-/// https://github.com/fengb/zCord/blob/master/build.zig#L4-L12
-const Options = struct {
-    mode: std.builtin.Mode,
-    target: std.zig.CrossTarget,
-
-    fn apply(self: Options, lib: *std.build.LibExeObjStep) void {
-        lib.setTarget(self.target);
-        lib.setBuildMode(self.mode);
-        lib.linkLibC();
-        lib.addIncludePath("libs/tigr");
-        lib.addCSourceFile("libs/tigr/tigr.c", &[_][]const u8{});
-        lib.linkSystemLibrary("X11");
-        lib.linkSystemLibrary("GL");
-        lib.linkSystemLibrary("GLU");
-    }
-};
-
-pub fn build(b: *std.build.Builder) void {
+pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
-    const mode = b.standardReleaseOptions();
-    const options = Options{
+    const optimize = b.standardOptimizeOption(.{});
+
+    const zigr_mod = b.addModule("zigr", .{
+        .optimize = optimize,
         .target = target,
-        .mode = mode,
-    };
+        .root_source_file = b.path("src/main.zig"),
+        .sanitize_c = .off,
+    });
+    const lib = b.addLibrary(.{
+        .linkage = .static,
+        .name = "zigr",
+        .root_module = zigr_mod,
+    });
 
-    const lib = b.addStaticLibrary("zigr", "src/main.zig");
-    options.apply(lib);
-    lib.install();
+    apply(b, lib);
+    b.installArtifact(lib);
 
-    const main_tests = b.addTest("src/main.zig");
-    options.apply(main_tests);
+    const tests = b.addTest(.{ .root_module = zigr_mod });
+    const run_tests = b.addRunArtifact(tests);
 
-    const test_step = b.step("test", "Run library tests");
-    test_step.dependOn(&main_tests.step);
+    const test_step = b.step("test", "Runs all tests");
+    test_step.dependOn(&run_tests.step);
 
-    const hello_example = b.addExecutable("hello", "examples/hello.zig");
-    options.apply(hello_example);
-    hello_example.addPackage(pkgs.zigr);
+    const hello_example = b.addExecutable(.{
+        .name = "hello",
+        .root_module = b.createModule(.{
+            .optimize = optimize,
+            .target = target,
+            .root_source_file = b.path("examples/hello.zig"),
+            .imports = &.{std.Build.Module.Import{ .name = "zigr", .module = zigr_mod }},
+        }),
+    });
 
     const examples_step = b.step("examples", "Builds examples");
-    examples_step.dependOn(&b.addInstallArtifact(hello_example).step);
+    examples_step.dependOn(&b.addInstallArtifact(hello_example, .{}).step);
 }
