@@ -1,13 +1,13 @@
 const zigr = @import("zigr");
 
 pub fn main() void {
-    var screen = zigr.tigrWindow(320, 240, "Hello", 0);
+    const screen: *zigr.Window = .init(320, 240, "Hello", .{});
 
-    while (!(zigr.tigrClosed(screen) == 1) and !(zigr.tigrKeyDown(screen, zigr.TK_ESCAPE) == 1)) {
-        zigr.tigrClear(screen, zigr.tigrRGB(0x80, 0x90, 0xa0));
-        zigr.tigrPrint(screen, zigr.tfont, 120, 110, zigr.tigrRGB(0xff, 0xff, 0xff), "Hello, world.");
-        zigr.tigrUpdate(screen);
+    while (!screen.closed() and !(screen.keyDown(.ESCAPE))) {
+        screen.clear(.initRGB(0x80, 0x90, 0xa0));
+        screen.print(null, 120, 110, .initRGB(0xff, 0xff, 0xff), "Hello, world.");
+        screen.update();
     }
 
-    zigr.tigrUpdate(screen);
+    screen.update();
 }

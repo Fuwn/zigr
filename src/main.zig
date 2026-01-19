@@ -1,627 +1,776 @@
-pub const __builtin_bswap16 = @import("std").zig.c_builtins.__builtin_bswap16;
-pub const __builtin_bswap32 = @import("std").zig.c_builtins.__builtin_bswap32;
-pub const __builtin_bswap64 = @import("std").zig.c_builtins.__builtin_bswap64;
-pub const __builtin_signbit = @import("std").zig.c_builtins.__builtin_signbit;
-pub const __builtin_signbitf = @import("std").zig.c_builtins.__builtin_signbitf;
-pub const __builtin_popcount = @import("std").zig.c_builtins.__builtin_popcount;
-pub const __builtin_ctz = @import("std").zig.c_builtins.__builtin_ctz;
-pub const __builtin_clz = @import("std").zig.c_builtins.__builtin_clz;
-pub const __builtin_sqrt = @import("std").zig.c_builtins.__builtin_sqrt;
-pub const __builtin_sqrtf = @import("std").zig.c_builtins.__builtin_sqrtf;
-pub const __builtin_sin = @import("std").zig.c_builtins.__builtin_sin;
-pub const __builtin_sinf = @import("std").zig.c_builtins.__builtin_sinf;
-pub const __builtin_cos = @import("std").zig.c_builtins.__builtin_cos;
-pub const __builtin_cosf = @import("std").zig.c_builtins.__builtin_cosf;
-pub const __builtin_exp = @import("std").zig.c_builtins.__builtin_exp;
-pub const __builtin_expf = @import("std").zig.c_builtins.__builtin_expf;
-pub const __builtin_exp2 = @import("std").zig.c_builtins.__builtin_exp2;
-pub const __builtin_exp2f = @import("std").zig.c_builtins.__builtin_exp2f;
-pub const __builtin_log = @import("std").zig.c_builtins.__builtin_log;
-pub const __builtin_logf = @import("std").zig.c_builtins.__builtin_logf;
-pub const __builtin_log2 = @import("std").zig.c_builtins.__builtin_log2;
-pub const __builtin_log2f = @import("std").zig.c_builtins.__builtin_log2f;
-pub const __builtin_log10 = @import("std").zig.c_builtins.__builtin_log10;
-pub const __builtin_log10f = @import("std").zig.c_builtins.__builtin_log10f;
-pub const __builtin_abs = @import("std").zig.c_builtins.__builtin_abs;
-pub const __builtin_fabs = @import("std").zig.c_builtins.__builtin_fabs;
-pub const __builtin_fabsf = @import("std").zig.c_builtins.__builtin_fabsf;
-pub const __builtin_floor = @import("std").zig.c_builtins.__builtin_floor;
-pub const __builtin_floorf = @import("std").zig.c_builtins.__builtin_floorf;
-pub const __builtin_ceil = @import("std").zig.c_builtins.__builtin_ceil;
-pub const __builtin_ceilf = @import("std").zig.c_builtins.__builtin_ceilf;
-pub const __builtin_trunc = @import("std").zig.c_builtins.__builtin_trunc;
-pub const __builtin_truncf = @import("std").zig.c_builtins.__builtin_truncf;
-pub const __builtin_round = @import("std").zig.c_builtins.__builtin_round;
-pub const __builtin_roundf = @import("std").zig.c_builtins.__builtin_roundf;
-pub const __builtin_strlen = @import("std").zig.c_builtins.__builtin_strlen;
-pub const __builtin_strcmp = @import("std").zig.c_builtins.__builtin_strcmp;
-pub const __builtin_object_size = @import("std").zig.c_builtins.__builtin_object_size;
-pub const __builtin___memset_chk = @import("std").zig.c_builtins.__builtin___memset_chk;
-pub const __builtin_memset = @import("std").zig.c_builtins.__builtin_memset;
-pub const __builtin___memcpy_chk = @import("std").zig.c_builtins.__builtin___memcpy_chk;
-pub const __builtin_memcpy = @import("std").zig.c_builtins.__builtin_memcpy;
-pub const __builtin_expect = @import("std").zig.c_builtins.__builtin_expect;
-pub const __builtin_nanf = @import("std").zig.c_builtins.__builtin_nanf;
-pub const __builtin_huge_valf = @import("std").zig.c_builtins.__builtin_huge_valf;
-pub const __builtin_inff = @import("std").zig.c_builtins.__builtin_inff;
-pub const __builtin_isnan = @import("std").zig.c_builtins.__builtin_isnan;
-pub const __builtin_isinf = @import("std").zig.c_builtins.__builtin_isinf;
-pub const __builtin_isinf_sign = @import("std").zig.c_builtins.__builtin_isinf_sign;
-pub const __has_builtin = @import("std").zig.c_builtins.__has_builtin;
-pub const __builtin_assume = @import("std").zig.c_builtins.__builtin_assume;
-pub const __builtin_unreachable = @import("std").zig.c_builtins.__builtin_unreachable;
-pub const __builtin_constant_p = @import("std").zig.c_builtins.__builtin_constant_p;
-pub const __builtin_mul_overflow = @import("std").zig.c_builtins.__builtin_mul_overflow;
-pub const TPixel = extern struct {
-    r: u8,
-    g: u8,
-    b: u8,
-    a: u8,
+//! ZIGR - Zig TIny GRaphics Library - v3.2
+//!        ^    ^   ^^
+//!
+//! rawr.
+
+const C = @import("c.zig");
+const std = @import("std");
+const assert = std.debug.assert;
+
+/// This struct contains one pixel.
+pub const Pixel = extern struct {
+    r: u8 = 0,
+    g: u8 = 0,
+    b: u8 = 0,
+    a: u8 = 255,
+    pub fn initRGB(r: u8, g: u8, b: u8) Pixel {
+        return .{ .r = r, .g = g, .b = b };
+    }
 };
-pub const struct_Tigr = extern struct {
+
+/// Alias to Tigr
+pub const Window = Tigr;
+
+/// A Tigr bitmap.
+pub const Tigr = extern struct {
     w: c_int,
     h: c_int,
     cx: c_int,
     cy: c_int,
     cw: c_int,
     ch: c_int,
-    pix: [*c]TPixel,
+    pix: [*c]Pixel,
     handle: ?*anyopaque,
     blitMode: c_int,
+
+    /// Creates a new empty window with a given bitmap size.
+    ///
+    /// Title is UTF-8.
+    pub inline fn init(w: c_int, h: c_int, title: [:0]const u8, flags: WindowFlags) *Tigr {
+        return C.tigrWindow(w, h, title.ptr, flags.convert()).?;
+    }
+
+    /// Creates an empty off-screen bitmap.
+    pub inline fn initBitmap(w: c_int, h: c_int) *Tigr {
+        return C.tigrBitmap(w, h);
+    }
+
+    /// Deletes a window/bitmap.
+    pub inline fn free(bmp: *Tigr) void {
+        C.tigrFree(bmp);
+    }
+
+    /// Returns non-zero if the user requested to close a window.
+    pub inline fn closed(bmp: *Tigr) bool {
+        return C.tigrClosed(bmp) != 0;
+    }
+
+    /// Displays a window's contents on-screen and updates input.
+    pub inline fn update(bmp: *Tigr) void {
+        return C.tigrUpdate(bmp);
+    }
+
+    /// Called before doing direct OpenGL calls and before update.
+    /// Returns non-zero if OpenGL is available.
+    pub inline fn beginOpenGL(bmp: *Tigr) c_int {
+        return C.tigrBeginOpenGL(bmp);
+    }
+
+    /// Sets post shader for a window.
+    /// This replaces the built-in post-FX shader.
+    pub inline fn setPostShader(bmp: *Tigr, code: [*c]const u8, size: c_int) void {
+        return C.tigrSetPostShader(bmp, code, size);
+    }
+
+    /// Sets post-FX properties for a window.
+    ///
+    /// The built-in post-FX shader uses the following parameters:
+    /// p1: hblur - use bilinear filtering along the x-axis (pixels)
+    /// p2: vblur - use bilinear filtering along the y-axis (pixels)
+    /// p3: scanlines - CRT scanlines effect (0-1)
+    /// p4: contrast - contrast boost (1 = no change, 2 = 2X contrast, etc)
+    pub inline fn setPostFX(bmp: *Tigr, p1: f32, p2: f32, p3: f32, p4: f32) void {
+        return C.tigrSetPostFX(bmp, p1, p2, p3, p4);
+    }
+
+    /// Helper for reading pixels.
+    /// For high performance, just access bmp->pix directly.
+    pub inline fn get(bmp: *Tigr, x: c_int, y: c_int) Pixel {
+        return C.tigrGet(bmp, x, y);
+    }
+
+    /// Plots a pixel.
+    /// Clips and blends.
+    /// For high performance, just access bmp->pix directly.
+    pub inline fn plot(bmp: *Tigr, x: c_int, y: c_int, pix: Pixel) void {
+        return C.tigrPlot(bmp, x, y, pix);
+    }
+
+    /// Clears a bitmap to a color.
+    /// No blending, no clipping.
+    pub inline fn clear(bmp: *Tigr, color: Pixel) void {
+        return C.tigrClear(bmp, color);
+    }
+
+    /// Fills a rectangular area.
+    /// No blending, no clipping.
+    pub inline fn fill(bmp: *Tigr, x: c_int, y: c_int, w: c_int, h: c_int, color: Pixel) void {
+        return C.tigrFill(bmp, x, y, w, h, color);
+    }
+
+    /// Draws a line.
+    /// Start pixel is drawn, end pixel is not.
+    /// Clips and blends.
+    pub inline fn line(bmp: *Tigr, x0: c_int, y0: c_int, x1: c_int, y1: c_int, color: Pixel) void {
+        return C.tigrLine(bmp, x0, y0, x1, y1, color);
+    }
+
+    /// Draws an empty rectangle.
+    /// Drawing a 1x1 rectangle yields the same result as calling plot.
+    /// Clips and blends.
+    pub inline fn rect(bmp: *Tigr, x: c_int, y: c_int, w: c_int, h: c_int, color: Pixel) void {
+        return C.tigrRect(bmp, x, y, w, h, color);
+    }
+
+    /// Fills a rectangle.
+    /// Fills the inside of the specified rectangular area.
+    /// Calling rect followed by fillRect using the same arguments
+    /// causes no overdrawing.
+    /// Clips and blends.
+    pub inline fn fillRect(bmp: *Tigr, x: c_int, y: c_int, w: c_int, h: c_int, color: Pixel) void {
+        return C.tigrFillRect(bmp, x, y, w, h, color);
+    }
+
+    /// Draws a circle.
+    /// Drawing a zero radius circle yields the same result as calling plot.
+    /// Drawing a circle with radius one draws a circle three pixels wide.
+    /// Clips and blends.
+    pub inline fn circle(bmp: *Tigr, x: c_int, y: c_int, r: c_int, color: Pixel) void {
+        return C.tigrCircle(bmp, x, y, r, color);
+    }
+
+    /// Fills a circle.
+    /// Fills the inside of the specified circle.
+    /// Calling circle followed by fillCircle using the same arguments
+    /// causes no overdrawing.
+    /// Filling a circle with zero radius has no effect.
+    /// Clips and blends.
+    pub inline fn fillCircle(bmp: *Tigr, x: c_int, y: c_int, r: c_int, color: Pixel) void {
+        return C.tigrFillCircle(bmp, x, y, r, color);
+    }
+
+    /// Sets clip rect.
+    /// Set to (0, 0, -1, -1) to reset clipping to full bitmap.
+    pub inline fn clip(bmp: *Tigr, cx: c_int, cy: c_int, cw: c_int, ch: c_int) void {
+        return C.tigrClip(bmp, cx, cy, cw, ch);
+    }
+
+    /// Set destination bitmap blend mode for blit operations.
+    pub inline fn setBlitMode(dest: *Tigr, mode: BlitMode) void {
+        return C.tigrBlitMode(dest, @intFromEnum(mode));
+    }
+
+    /// Loads a font from a bitmap font sheet.
+    /// The loaded font takes ownership of the provided bitmap.
+    ///
+    /// Codepages:
+    ///
+    ///  TCP_ASCII   - Regular 7-bit ASCII
+    ///  TCP_1252    - Windows 1252
+    ///  TCP_UTF32   - Unicode subset
+    ///
+    /// For ASCII and 1252, the font bitmap should contain all characters
+    /// for the given codepage, excluding the first 32 control codes.
+    ///
+    /// For UTF32 - the font bitmap contains a subset of Unicode characters
+    /// and must be in the format generated by font for UTF32.
+    ///
+    pub inline fn loadFont(bitmap: *Tigr, codepage: Codepage) *Font {
+        return C.tigrLoadFont(bitmap, @intFromEnum(codepage));
+    }
+
+    /// Prints UTF-8 text onto a bitmap.
+    /// NOTE:
+    ///  This uses the target bitmap blit mode.
+    ///  See blitTint for details.
+    ///
+    /// If font is null, it will use the built in font.
+    pub inline fn print(dest: *Tigr, font: ?*Font, x: c_int, y: c_int, color: Pixel, text: [:0]const u8) void {
+        return C.tigrPrint(dest, font orelse tfont, x, y, color, text.ptr);
+    }
+
+    /// Returns mouse input for a window.
+    /// The value set to "buttons" is a bit set where bits 0, 1 and 2
+    /// corresponds to the left, right and middle buttons.
+    /// A set bit indicates that a button is held.
+    pub inline fn mouse(bmp: *Tigr) Mouse {
+        var x: c_int = undefined;
+        var y: c_int = undefined;
+        var buttons: c_int = undefined;
+        C.tigrMouse(bmp, &x, &y, &buttons);
+        return .{
+            .x = x,
+            .y = y,
+            .left = (buttons & 0b0001) > 0,
+            .right = (buttons & 0b0010) > 0,
+            .middle = (buttons & 0b0100) > 0,
+        };
+    }
+
+    /// Reads touch input for a window.
+    /// Returns number of touch points read.
+    pub inline fn touch(bmp: *Tigr, points: [*c]touchPoint, maxPoints: c_int) c_int {
+        return C.tigrTouch(bmp, points, maxPoints);
+    }
+
+    /// Reads the delta of the scroll "wheel" in somewhat platform neutral
+    /// units where 1.0 corresponds to a "notch". The actual correlation between
+    /// physical movement and this number varies between platforms, input methods
+    /// and settings.
+    pub inline fn scrollWheel(bmp: *Tigr, x: [*c]f32, y: [*c]f32) void {
+        return C.tigrScrollWheel(bmp, x, y);
+    }
+
+    /// Reads the keyboard for a window.
+    /// Returns non-zero if a key is pressed/held.
+    /// keyDown tests for the initial press, keyHeld repeats each frame.
+    pub inline fn keyDown(bmp: *Tigr, key: Key) bool {
+        return C.tigrKeyDown(bmp, @intFromEnum(key)) != 0;
+    }
+
+    /// Reads the keyboard for a window.
+    /// Returns non-zero if a key is pressed/held.
+    /// keyDown tests for the initial press, keyHeld repeats each frame.
+    pub inline fn keyHeld(bmp: *Tigr, key: Key) bool {
+        return C.tigrKeyHeld(bmp, @intFromEnum(key)) != 0;
+    }
+
+    /// Reads character input for a window.
+    /// Returns the Unicode value of the last key pressed, or 0 if none.
+    pub inline fn readChar(bmp: *Tigr) ?Key {
+        const char = C.tigrReadChar(bmp);
+        if (char == 0) return null;
+        return @enumFromInt(char);
+    }
+
+    /// Loads a PNG from a file. (fileName is UTF-8)
+    /// On error, returns NULL and sets errno.
+    pub inline fn loadImage(fileName: [:0]const u8) *Tigr {
+        return C.tigrLoadImage(fileName.ptr);
+    }
+
+    /// Loads a PNG from memory.
+    /// On error, returns NULL and sets errno.
+    pub inline fn loadImageMem(data: ?*const anyopaque, length: c_int) *Tigr {
+        return C.tigrLoadImageMem(data, length);
+    }
+
+    /// Saves a PNG to a file. (fileName is UTF-8)
+    /// On error, returns zero and sets errno.
+    pub inline fn saveImage(bmp: *Tigr, fileName: [:0]const u8) c_int {
+        return C.tigrSaveImage(fileName.ptr, bmp);
+    }
 };
-pub const Tigr = struct_Tigr;
-pub extern fn tigrWindow(w: c_int, h: c_int, title: [*c]const u8, flags: c_int) [*c]Tigr;
-pub extern fn tigrBitmap(w: c_int, h: c_int) [*c]Tigr;
-pub extern fn tigrFree(bmp: [*c]Tigr) void;
-pub extern fn tigrClosed(bmp: [*c]Tigr) c_int;
-pub extern fn tigrUpdate(bmp: [*c]Tigr) void;
-pub extern fn tigrBeginOpenGL(bmp: [*c]Tigr) c_int;
-pub extern fn tigrSetPostShader(bmp: [*c]Tigr, code: [*c]const u8, size: c_int) void;
-pub extern fn tigrSetPostFX(bmp: [*c]Tigr, p1: f32, p2: f32, p3: f32, p4: f32) void;
-pub extern fn tigrGet(bmp: [*c]Tigr, x: c_int, y: c_int) TPixel;
-pub extern fn tigrPlot(bmp: [*c]Tigr, x: c_int, y: c_int, pix: TPixel) void;
-pub extern fn tigrClear(bmp: [*c]Tigr, color: TPixel) void;
-pub extern fn tigrFill(bmp: [*c]Tigr, x: c_int, y: c_int, w: c_int, h: c_int, color: TPixel) void;
-pub extern fn tigrLine(bmp: [*c]Tigr, x0: c_int, y0: c_int, x1: c_int, y1: c_int, color: TPixel) void;
-pub extern fn tigrRect(bmp: [*c]Tigr, x: c_int, y: c_int, w: c_int, h: c_int, color: TPixel) void;
-pub extern fn tigrFillRect(bmp: [*c]Tigr, x: c_int, y: c_int, w: c_int, h: c_int, color: TPixel) void;
-pub extern fn tigrCircle(bmp: [*c]Tigr, x: c_int, y: c_int, r: c_int, color: TPixel) void;
-pub extern fn tigrFillCircle(bmp: [*c]Tigr, x: c_int, y: c_int, r: c_int, color: TPixel) void;
-pub extern fn tigrClip(bmp: [*c]Tigr, cx: c_int, cy: c_int, cw: c_int, ch: c_int) void;
-pub extern fn tigrBlit(dest: [*c]Tigr, src: [*c]Tigr, dx: c_int, dy: c_int, sx: c_int, sy: c_int, w: c_int, h: c_int) void;
-pub extern fn tigrBlitAlpha(dest: [*c]Tigr, src: [*c]Tigr, dx: c_int, dy: c_int, sx: c_int, sy: c_int, w: c_int, h: c_int, alpha: f32) void;
-pub extern fn tigrBlitTint(dest: [*c]Tigr, src: [*c]Tigr, dx: c_int, dy: c_int, sx: c_int, sy: c_int, w: c_int, h: c_int, tint: TPixel) void;
-pub const TIGR_KEEP_ALPHA: c_int = 0;
-pub const TIGR_BLEND_ALPHA: c_int = 1;
-pub const enum_TIGRBlitMode = c_uint;
-pub extern fn tigrBlitMode(dest: [*c]Tigr, mode: c_int) void;
-pub fn tigrRGB(arg_r: u8, arg_g: u8, arg_b: u8) callconv(.C) TPixel {
-    var r = arg_r;
-    var g = arg_g;
-    var b = arg_b;
-    var p: TPixel = undefined;
-    p.r = r;
-    p.g = g;
-    p.b = b;
-    p.a = 255;
-    return p;
+
+/// Creates a new empty window with a given bitmap size.
+///
+/// Title is UTF-8.
+pub inline fn initWindow(w: c_int, h: c_int, title: [:0]const u8, flags: WindowFlags) *Tigr {
+    return C.tigrWindow(w, h, title.ptr, flags.convert()).?;
 }
-pub fn tigrRGBA(arg_r: u8, arg_g: u8, arg_b: u8, arg_a: u8) callconv(.C) TPixel {
-    var r = arg_r;
-    var g = arg_g;
-    var b = arg_b;
-    var a = arg_a;
-    var p: TPixel = undefined;
-    p.r = r;
-    p.g = g;
-    p.b = b;
-    p.a = a;
-    return p;
+
+pub const WindowFlags = struct {
+    const TIGR_FIXED = @as(c_int, 0);
+    const TIGR_AUTO = @as(c_int, 1);
+    const TIGR_2X = @as(c_int, 2);
+    const TIGR_3X = @as(c_int, 4);
+    const TIGR_4X = @as(c_int, 8);
+    const TIGR_RETINA = @as(c_int, 16);
+    const TIGR_NOCURSOR = @as(c_int, 32);
+    const TIGR_FULLSCREEN = @as(c_int, 64);
+    /// In TIGR_FIXED mode, the window is made as large as possible to contain an integer-scaled
+    /// version of the bitmap while still fitting on the screen. Resizing the window will adapt
+    /// the scale in integer steps to fit the bitmap.
+    ///
+    /// In TIGR_AUTO mode, the initial window size is set to the bitmap size times the pixel
+    /// scale. Resizing the window will resize the bitmap using the specified scale.
+    /// For example, in forced 2X mode, the window will be twice as wide (and high) as the bitmap.
+    size: enum { fixed, auto } = .fixed,
+    scale: enum(c_int) { x1 = 0, x2 = TIGR_2X, x3 = TIGR_3X, x4 = TIGR_4X } = .x1,
+
+    /// Turning on TIGR_RETINA mode will request full backing resolution on OSX, meaning that
+    /// the effective window size might be integer scaled to a larger size. In TIGR_AUTO mode,
+    /// this means that the Tigr bitmap will change size if the window is moved between
+    /// retina and non-retina screens.
+    retina: bool = false,
+    nocursor: bool = false,
+    fullscreen: bool = false,
+    pub inline fn convert(self: WindowFlags) c_int {
+        return (if (self.size == .auto) TIGR_AUTO else TIGR_FIXED) +
+            @intFromEnum(self.scale) +
+            (if (self.retina) TIGR_RETINA else 0) +
+            (if (self.nocursor) TIGR_NOCURSOR else 0) +
+            (if (self.fullscreen) TIGR_FULLSCREEN else 0);
+    }
+};
+
+/// Creates an empty off-screen bitmap.
+pub inline fn initBitmap(w: c_int, h: c_int) *Tigr {
+    return C.tigrBitmap(w, h);
 }
-pub const TigrGlyph = extern struct {
-    code: c_int,
+
+/// Deletes a window/bitmap.
+pub inline fn free(bmp: *Tigr) void {
+    C.tigrFree(bmp);
+}
+
+/// Returns non-zero if the user requested to close a window.
+pub inline fn closed(bmp: *Tigr) bool {
+    return C.tigrClosed(bmp) != 0;
+}
+
+/// Displays a window's contents on-screen and updates input.
+pub inline fn update(bmp: *Tigr) void {
+    return C.tigrUpdate(bmp);
+}
+
+/// Called before doing direct OpenGL calls and before update.
+/// Returns non-zero if OpenGL is available.
+pub inline fn beginOpenGL(bmp: *Tigr) c_int {
+    return C.tigrBeginOpenGL(bmp);
+}
+
+/// Sets post shader for a window.
+/// This replaces the built-in post-FX shader.
+pub inline fn setPostShader(bmp: *Tigr, code: [*c]const u8, size: c_int) void {
+    return C.tigrSetPostShader(bmp, code, size);
+}
+
+/// Sets post-FX properties for a window.
+///
+/// The built-in post-FX shader uses the following parameters:
+/// p1: hblur - use bilinear filtering along the x-axis (pixels)
+/// p2: vblur - use bilinear filtering along the y-axis (pixels)
+/// p3: scanlines - CRT scanlines effect (0-1)
+/// p4: contrast - contrast boost (1 = no change, 2 = 2X contrast, etc)
+pub inline fn setPostFX(bmp: *Tigr, p1: f32, p2: f32, p3: f32, p4: f32) void {
+    return C.tigrSetPostFX(bmp, p1, p2, p3, p4);
+}
+
+/// Helper for reading pixels.
+/// For high performance, just access bmp->pix directly.
+pub inline fn get(bmp: *Tigr, x: c_int, y: c_int) Pixel {
+    return C.tigrGet(bmp, x, y);
+}
+
+/// Plots a pixel.
+/// Clips and blends.
+/// For high performance, just access bmp->pix directly.
+pub inline fn plot(bmp: *Tigr, x: c_int, y: c_int, pix: Pixel) void {
+    return C.tigrPlot(bmp, x, y, pix);
+}
+
+/// Clears a bitmap to a color.
+/// No blending, no clipping.
+pub inline fn clear(bmp: *Tigr, color: Pixel) void {
+    return C.tigrClear(bmp, color);
+}
+
+/// Fills a rectangular area.
+/// No blending, no clipping.
+pub inline fn fill(bmp: *Tigr, x: c_int, y: c_int, w: c_int, h: c_int, color: Pixel) void {
+    return C.tigrFill(bmp, x, y, w, h, color);
+}
+
+/// Draws a line.
+/// Start pixel is drawn, end pixel is not.
+/// Clips and blends.
+pub inline fn line(bmp: *Tigr, x0: c_int, y0: c_int, x1: c_int, y1: c_int, color: Pixel) void {
+    return C.tigrLine(bmp, x0, y0, x1, y1, color);
+}
+
+/// Draws an empty rectangle.
+/// Drawing a 1x1 rectangle yields the same result as calling plot.
+/// Clips and blends.
+pub inline fn rect(bmp: *Tigr, x: c_int, y: c_int, w: c_int, h: c_int, color: Pixel) void {
+    return C.tigrRect(bmp, x, y, w, h, color);
+}
+
+/// Fills a rectangle.
+/// Fills the inside of the specified rectangular area.
+/// Calling rect followed by fillRect using the same arguments
+/// causes no overdrawing.
+/// Clips and blends.
+pub inline fn fillRect(bmp: *Tigr, x: c_int, y: c_int, w: c_int, h: c_int, color: Pixel) void {
+    return C.tigrFillRect(bmp, x, y, w, h, color);
+}
+
+/// Draws a circle.
+/// Drawing a zero radius circle yields the same result as calling plot.
+/// Drawing a circle with radius one draws a circle three pixels wide.
+/// Clips and blends.
+pub inline fn circle(bmp: *Tigr, x: c_int, y: c_int, r: c_int, color: Pixel) void {
+    return C.tigrCircle(bmp, x, y, r, color);
+}
+
+/// Fills a circle.
+/// Fills the inside of the specified circle.
+/// Calling circle followed by fillCircle using the same arguments
+/// causes no overdrawing.
+/// Filling a circle with zero radius has no effect.
+/// Clips and blends.
+pub inline fn fillCircle(bmp: *Tigr, x: c_int, y: c_int, r: c_int, color: Pixel) void {
+    return C.tigrFillCircle(bmp, x, y, r, color);
+}
+
+/// Sets clip rect.
+/// Set to (0, 0, -1, -1) to reset clipping to full bitmap.
+pub inline fn clip(bmp: *Tigr, cx: c_int, cy: c_int, cw: c_int, ch: c_int) void {
+    return C.tigrClip(bmp, cx, cy, cw, ch);
+}
+
+/// Copies bitmap data.
+/// dx/dy = dest co-ordinates
+/// sx/sy = source co-ordinates
+/// w/h   = width/height
+///
+/// RGBAdest = RGBAsrc
+/// Clips, does not blend.
+pub inline fn blit(dest: *Tigr, src: *Tigr, dx: c_int, dy: c_int, sx: c_int, sy: c_int, w: c_int, h: c_int) void {
+    return C.tigrBlit(dest, src, dx, dy, sx, sy, w, h);
+}
+
+/// Same as blit, but alpha blends the source bitmap with the
+/// target using per pixel alpha and the specified global alpha.
+///
+/// Ablend = Asrc * alpha
+/// RGBdest = RGBsrc * Ablend + RGBdest * (1 - Ablend)
+///
+/// Blit mode == TIGR_KEEP_ALPHA:
+/// Adest = Adest
+///
+/// Blit mode == TIGR_BLEND_ALPHA:
+/// Adest = Asrc * Ablend + Adest * (1 - Ablend)
+/// Clips and blends.
+pub inline fn blitAlpha(dest: *Tigr, src: *Tigr, dx: c_int, dy: c_int, sx: c_int, sy: c_int, w: c_int, h: c_int, alpha: f32) void {
+    return C.tigrBlitAlpha(dest, src, dx, dy, sx, sy, w, h, alpha);
+}
+
+/// Same as blit, but tints the source bitmap with a color
+/// and alpha blends the resulting source with the destination.
+///
+/// Rblend = Rsrc * Rtint
+/// Gblend = Gsrc * Gtint
+/// Bblend = Bsrc * Btint
+/// Ablend = Asrc * Atint
+///
+/// RGBdest = RGBblend * Ablend + RGBdest * (1 - Ablend)
+///
+/// Blit mode == TIGR_KEEP_ALPHA:
+/// Adest = Adest
+///
+/// Blit mode == TIGR_BLEND_ALPHA:
+/// Adest = Ablend * Ablend + Adest * (1 - Ablend)
+/// Clips and blends.
+pub inline fn blitTint(dest: *Tigr, src: *Tigr, dx: c_int, dy: c_int, sx: c_int, sy: c_int, w: c_int, h: c_int, tint: Pixel) void {
+    return C.tigrBlitTint(dest, src, dx, dy, sx, sy, w, h, tint);
+}
+
+pub const BlitMode = enum(c_int) {
+    /// Keep destination alpha value
+    TIGR_KEEP_ALPHA = 0,
+    /// Blend destination alpha (default)
+    TIGR_BLEND_ALPHA = 1,
+};
+
+/// Set destination bitmap blend mode for blit operations.
+pub inline fn blitMode(dest: *Tigr, mode: BlitMode) void {
+    return C.tigrBlitMode(dest, @intFromEnum(mode));
+}
+
+pub const Glyph = C.TigrGlyph;
+pub const Font = C.TigrFont;
+pub const Codepage = enum(c_int) {
+    TCP_ASCII = 0,
+    TCP_1252 = 1252,
+    TCP_UTF32 = 12001,
+};
+
+/// Loads a font from a bitmap font sheet.
+/// The loaded font takes ownership of the provided bitmap.
+///
+/// Codepages:
+///
+///  TCP_ASCII   - Regular 7-bit ASCII
+///  TCP_1252    - Windows 1252
+///  TCP_UTF32   - Unicode subset
+///
+/// For ASCII and 1252, the font bitmap should contain all characters
+/// for the given codepage, excluding the first 32 control codes.
+///
+/// For UTF32 - the font bitmap contains a subset of Unicode characters
+/// and must be in the format generated by font for UTF32.
+///
+pub inline fn loadFont(bitmap: *Tigr, codepage: Codepage) *Font {
+    return C.tigrLoadFont(bitmap, @intFromEnum(codepage));
+}
+
+/// Frees a font and associated font sheet.
+pub inline fn freeFont(font: *Font) void {
+    return C.tigrFreeFont(font);
+}
+
+/// Prints UTF-8 text onto a bitmap.
+/// NOTE:
+///  This uses the target bitmap blit mode.
+///  See blitTint for details.
+pub inline fn print(dest: *Tigr, font: ?*Font, x: c_int, y: c_int, color: Pixel, text: [:0]const u8) void {
+    return C.tigrPrint(dest, font orelse tfont, x, y, color, text.ptr);
+}
+
+/// Returns the width of a string.
+pub inline fn textWidth(font: ?*Font, text: [:0]const u8) c_int {
+    return C.tigrTextWidth(font orelse tfont, text.ptr);
+}
+
+/// Returns the height of a string.
+pub inline fn textHeight(font: ?*Font, text: [:0]const u8) c_int {
+    return C.tigrTextHeight(font orelse tfont, text.ptr);
+}
+
+/// The built-in font.
+pub extern var tfont: *Font;
+
+/// Key scancodes. For letters/numbers, use ASCII ('A'-'Z' and '0'-'9').
+pub const Key = enum(c_int) {
+    PAD0 = 128,
+    PAD1 = 129,
+    PAD2 = 130,
+    PAD3 = 131,
+    PAD4 = 132,
+    PAD5 = 133,
+    PAD6 = 134,
+    PAD7 = 135,
+    PAD8 = 136,
+    PAD9 = 137,
+    PADMUL = 138,
+    PADADD = 139,
+    PADENTER = 140,
+    PADSUB = 141,
+    PADDOT = 142,
+    PADDIV = 143,
+    F1 = 144,
+    F2 = 145,
+    F3 = 146,
+    F4 = 147,
+    F5 = 148,
+    F6 = 149,
+    F7 = 150,
+    F8 = 151,
+    F9 = 152,
+    F10 = 153,
+    F11 = 154,
+    F12 = 155,
+    BACKSPACE = 156,
+    TAB = 157,
+    RETURN = 158,
+    SHIFT = 159,
+    CONTROL = 160,
+    ALT = 161,
+    PAUSE = 162,
+    CAPSLOCK = 163,
+    ESCAPE = 164,
+    SPACE = 165,
+    PAGEUP = 166,
+    PAGEDN = 167,
+    END = 168,
+    HOME = 169,
+    LEFT = 170,
+    UP = 171,
+    RIGHT = 172,
+    DOWN = 173,
+    INSERT = 174,
+    DELETE = 175,
+    LWIN = 176,
+    RWIN = 177,
+    NUMLOCK = 178,
+    SCROLL = 179,
+    LSHIFT = 180,
+    RSHIFT = 181,
+    LCONTROL = 182,
+    RCONTROL = 183,
+    LALT = 184,
+    RALT = 185,
+    SEMICOLON = 186,
+    EQUALS = 187,
+    COMMA = 188,
+    MINUS = 189,
+    DOT = 190,
+    SLASH = 191,
+    BACKTICK = 192,
+    LSQUARE = 193,
+    BACKSLASH = 194,
+    RSQUARE = 195,
+    TICK = 196,
+    _,
+    pub fn char(c: u8) Key {
+        assert(std.ascii.isAlphanumeric(c));
+        return @enumFromInt(c);
+    }
+};
+
+const Mouse = struct {
     x: c_int,
     y: c_int,
-    w: c_int,
-    h: c_int,
+    left: bool,
+    right: bool,
+    middle: bool,
 };
-pub const TigrFont = extern struct {
-    bitmap: [*c]Tigr,
-    numGlyphs: c_int,
-    glyphs: [*c]TigrGlyph,
-};
-pub extern fn tigrLoadFont(bitmap: [*c]Tigr, codepage: c_int) [*c]TigrFont;
-pub extern fn tigrFreeFont(font: [*c]TigrFont) void;
-pub extern fn tigrPrint(dest: [*c]Tigr, font: [*c]TigrFont, x: c_int, y: c_int, color: TPixel, text: [*c]const u8, ...) void;
-pub extern fn tigrTextWidth(font: [*c]TigrFont, text: [*c]const u8) c_int;
-pub extern fn tigrTextHeight(font: [*c]TigrFont, text: [*c]const u8) c_int;
-pub extern var tfont: [*c]TigrFont;
-pub const TK_PAD0: c_int = 128;
-pub const TK_PAD1: c_int = 129;
-pub const TK_PAD2: c_int = 130;
-pub const TK_PAD3: c_int = 131;
-pub const TK_PAD4: c_int = 132;
-pub const TK_PAD5: c_int = 133;
-pub const TK_PAD6: c_int = 134;
-pub const TK_PAD7: c_int = 135;
-pub const TK_PAD8: c_int = 136;
-pub const TK_PAD9: c_int = 137;
-pub const TK_PADMUL: c_int = 138;
-pub const TK_PADADD: c_int = 139;
-pub const TK_PADENTER: c_int = 140;
-pub const TK_PADSUB: c_int = 141;
-pub const TK_PADDOT: c_int = 142;
-pub const TK_PADDIV: c_int = 143;
-pub const TK_F1: c_int = 144;
-pub const TK_F2: c_int = 145;
-pub const TK_F3: c_int = 146;
-pub const TK_F4: c_int = 147;
-pub const TK_F5: c_int = 148;
-pub const TK_F6: c_int = 149;
-pub const TK_F7: c_int = 150;
-pub const TK_F8: c_int = 151;
-pub const TK_F9: c_int = 152;
-pub const TK_F10: c_int = 153;
-pub const TK_F11: c_int = 154;
-pub const TK_F12: c_int = 155;
-pub const TK_BACKSPACE: c_int = 156;
-pub const TK_TAB: c_int = 157;
-pub const TK_RETURN: c_int = 158;
-pub const TK_SHIFT: c_int = 159;
-pub const TK_CONTROL: c_int = 160;
-pub const TK_ALT: c_int = 161;
-pub const TK_PAUSE: c_int = 162;
-pub const TK_CAPSLOCK: c_int = 163;
-pub const TK_ESCAPE: c_int = 164;
-pub const TK_SPACE: c_int = 165;
-pub const TK_PAGEUP: c_int = 166;
-pub const TK_PAGEDN: c_int = 167;
-pub const TK_END: c_int = 168;
-pub const TK_HOME: c_int = 169;
-pub const TK_LEFT: c_int = 170;
-pub const TK_UP: c_int = 171;
-pub const TK_RIGHT: c_int = 172;
-pub const TK_DOWN: c_int = 173;
-pub const TK_INSERT: c_int = 174;
-pub const TK_DELETE: c_int = 175;
-pub const TK_LWIN: c_int = 176;
-pub const TK_RWIN: c_int = 177;
-pub const TK_NUMLOCK: c_int = 178;
-pub const TK_SCROLL: c_int = 179;
-pub const TK_LSHIFT: c_int = 180;
-pub const TK_RSHIFT: c_int = 181;
-pub const TK_LCONTROL: c_int = 182;
-pub const TK_RCONTROL: c_int = 183;
-pub const TK_LALT: c_int = 184;
-pub const TK_RALT: c_int = 185;
-pub const TK_SEMICOLON: c_int = 186;
-pub const TK_EQUALS: c_int = 187;
-pub const TK_COMMA: c_int = 188;
-pub const TK_MINUS: c_int = 189;
-pub const TK_DOT: c_int = 190;
-pub const TK_SLASH: c_int = 191;
-pub const TK_BACKTICK: c_int = 192;
-pub const TK_LSQUARE: c_int = 193;
-pub const TK_BACKSLASH: c_int = 194;
-pub const TK_RSQUARE: c_int = 195;
-pub const TK_TICK: c_int = 196;
-pub const TKey = c_uint;
-pub extern fn tigrMouse(bmp: [*c]Tigr, x: [*c]c_int, y: [*c]c_int, buttons: [*c]c_int) void;
-pub const TigrTouchPoint = extern struct {
-    x: c_int,
-    y: c_int,
-};
-pub extern fn tigrTouch(bmp: [*c]Tigr, points: [*c]TigrTouchPoint, maxPoints: c_int) c_int;
-pub extern fn tigrKeyDown(bmp: [*c]Tigr, key: c_int) c_int;
-pub extern fn tigrKeyHeld(bmp: [*c]Tigr, key: c_int) c_int;
-pub extern fn tigrReadChar(bmp: [*c]Tigr) c_int;
-pub extern fn tigrShowKeyboard(show: c_int) void;
-pub extern fn tigrLoadImage(fileName: [*c]const u8) [*c]Tigr;
-pub extern fn tigrLoadImageMem(data: ?*const anyopaque, length: c_int) [*c]Tigr;
-pub extern fn tigrSaveImage(fileName: [*c]const u8, bmp: [*c]Tigr) c_int;
-pub extern fn tigrTime(...) f32;
-pub extern fn tigrError(bmp: [*c]Tigr, message: [*c]const u8, ...) void;
-pub extern fn tigrReadFile(fileName: [*c]const u8, length: [*c]c_int) ?*anyopaque;
-pub extern fn tigrInflate(out: ?*anyopaque, outlen: c_uint, in: ?*const anyopaque, inlen: c_uint) c_int;
-pub extern fn tigrDecodeUTF8(text: [*c]const u8, cp: [*c]c_int) [*c]const u8;
-pub extern fn tigrEncodeUTF8(text: [*c]u8, cp: c_int) [*c]u8;
-pub const __INTMAX_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `L`"); // (no file):80:9
-pub const __UINTMAX_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `UL`"); // (no file):86:9
-pub const __INT64_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `L`"); // (no file):169:9
-pub const __UINT32_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `U`"); // (no file):191:9
-pub const __UINT64_C_SUFFIX__ = @compileError("unable to translate macro: undefined identifier `UL`"); // (no file):199:9
-pub const __seg_gs = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // (no file):326:9
-pub const __seg_fs = @compileError("unable to translate macro: undefined identifier `__attribute__`"); // (no file):327:9
-pub const TIGR_INLINE = @compileError("unable to translate C expr: unexpected token 'static'"); // libs/tigr/tigr.h:29:9
-pub const __llvm__ = @as(c_int, 1);
-pub const __clang__ = @as(c_int, 1);
-pub const __clang_major__ = @as(c_int, 14);
-pub const __clang_minor__ = @as(c_int, 0);
-pub const __clang_patchlevel__ = @as(c_int, 6);
-pub const __clang_version__ = "14.0.6 (git@github.com:ziglang/zig-bootstrap.git dbc902054739800b8c1656dc1fb29571bba074b9)";
-pub const __GNUC__ = @as(c_int, 4);
-pub const __GNUC_MINOR__ = @as(c_int, 2);
-pub const __GNUC_PATCHLEVEL__ = @as(c_int, 1);
-pub const __GXX_ABI_VERSION = @as(c_int, 1002);
-pub const __ATOMIC_RELAXED = @as(c_int, 0);
-pub const __ATOMIC_CONSUME = @as(c_int, 1);
-pub const __ATOMIC_ACQUIRE = @as(c_int, 2);
-pub const __ATOMIC_RELEASE = @as(c_int, 3);
-pub const __ATOMIC_ACQ_REL = @as(c_int, 4);
-pub const __ATOMIC_SEQ_CST = @as(c_int, 5);
-pub const __OPENCL_MEMORY_SCOPE_WORK_ITEM = @as(c_int, 0);
-pub const __OPENCL_MEMORY_SCOPE_WORK_GROUP = @as(c_int, 1);
-pub const __OPENCL_MEMORY_SCOPE_DEVICE = @as(c_int, 2);
-pub const __OPENCL_MEMORY_SCOPE_ALL_SVM_DEVICES = @as(c_int, 3);
-pub const __OPENCL_MEMORY_SCOPE_SUB_GROUP = @as(c_int, 4);
-pub const __PRAGMA_REDEFINE_EXTNAME = @as(c_int, 1);
-pub const __VERSION__ = "Clang 14.0.6 (git@github.com:ziglang/zig-bootstrap.git dbc902054739800b8c1656dc1fb29571bba074b9)";
-pub const __OBJC_BOOL_IS_BOOL = @as(c_int, 0);
-pub const __CONSTANT_CFSTRINGS__ = @as(c_int, 1);
-pub const __clang_literal_encoding__ = "UTF-8";
-pub const __clang_wide_literal_encoding__ = "UTF-32";
-pub const __ORDER_LITTLE_ENDIAN__ = @as(c_int, 1234);
-pub const __ORDER_BIG_ENDIAN__ = @as(c_int, 4321);
-pub const __ORDER_PDP_ENDIAN__ = @as(c_int, 3412);
-pub const __BYTE_ORDER__ = __ORDER_LITTLE_ENDIAN__;
-pub const __LITTLE_ENDIAN__ = @as(c_int, 1);
-pub const _LP64 = @as(c_int, 1);
-pub const __LP64__ = @as(c_int, 1);
-pub const __CHAR_BIT__ = @as(c_int, 8);
-pub const __BOOL_WIDTH__ = @as(c_int, 8);
-pub const __SHRT_WIDTH__ = @as(c_int, 16);
-pub const __INT_WIDTH__ = @as(c_int, 32);
-pub const __LONG_WIDTH__ = @as(c_int, 64);
-pub const __LLONG_WIDTH__ = @as(c_int, 64);
-pub const __BITINT_MAXWIDTH__ = @as(c_int, 128);
-pub const __SCHAR_MAX__ = @as(c_int, 127);
-pub const __SHRT_MAX__ = @as(c_int, 32767);
-pub const __INT_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 2147483647, .decimal);
-pub const __LONG_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_long, 9223372036854775807, .decimal);
-pub const __LONG_LONG_MAX__ = @as(c_longlong, 9223372036854775807);
-pub const __WCHAR_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 2147483647, .decimal);
-pub const __WCHAR_WIDTH__ = @as(c_int, 32);
-pub const __WINT_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_uint, 4294967295, .decimal);
-pub const __WINT_WIDTH__ = @as(c_int, 32);
-pub const __INTMAX_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_long, 9223372036854775807, .decimal);
-pub const __INTMAX_WIDTH__ = @as(c_int, 64);
-pub const __SIZE_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_ulong, 18446744073709551615, .decimal);
-pub const __SIZE_WIDTH__ = @as(c_int, 64);
-pub const __UINTMAX_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_ulong, 18446744073709551615, .decimal);
-pub const __UINTMAX_WIDTH__ = @as(c_int, 64);
-pub const __PTRDIFF_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_long, 9223372036854775807, .decimal);
-pub const __PTRDIFF_WIDTH__ = @as(c_int, 64);
-pub const __INTPTR_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_long, 9223372036854775807, .decimal);
-pub const __INTPTR_WIDTH__ = @as(c_int, 64);
-pub const __UINTPTR_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_ulong, 18446744073709551615, .decimal);
-pub const __UINTPTR_WIDTH__ = @as(c_int, 64);
-pub const __SIZEOF_DOUBLE__ = @as(c_int, 8);
-pub const __SIZEOF_FLOAT__ = @as(c_int, 4);
-pub const __SIZEOF_INT__ = @as(c_int, 4);
-pub const __SIZEOF_LONG__ = @as(c_int, 8);
-pub const __SIZEOF_LONG_DOUBLE__ = @as(c_int, 16);
-pub const __SIZEOF_LONG_LONG__ = @as(c_int, 8);
-pub const __SIZEOF_POINTER__ = @as(c_int, 8);
-pub const __SIZEOF_SHORT__ = @as(c_int, 2);
-pub const __SIZEOF_PTRDIFF_T__ = @as(c_int, 8);
-pub const __SIZEOF_SIZE_T__ = @as(c_int, 8);
-pub const __SIZEOF_WCHAR_T__ = @as(c_int, 4);
-pub const __SIZEOF_WINT_T__ = @as(c_int, 4);
-pub const __SIZEOF_INT128__ = @as(c_int, 16);
-pub const __INTMAX_TYPE__ = c_long;
-pub const __INTMAX_FMTd__ = "ld";
-pub const __INTMAX_FMTi__ = "li";
-pub const __UINTMAX_TYPE__ = c_ulong;
-pub const __UINTMAX_FMTo__ = "lo";
-pub const __UINTMAX_FMTu__ = "lu";
-pub const __UINTMAX_FMTx__ = "lx";
-pub const __UINTMAX_FMTX__ = "lX";
-pub const __PTRDIFF_TYPE__ = c_long;
-pub const __PTRDIFF_FMTd__ = "ld";
-pub const __PTRDIFF_FMTi__ = "li";
-pub const __INTPTR_TYPE__ = c_long;
-pub const __INTPTR_FMTd__ = "ld";
-pub const __INTPTR_FMTi__ = "li";
-pub const __SIZE_TYPE__ = c_ulong;
-pub const __SIZE_FMTo__ = "lo";
-pub const __SIZE_FMTu__ = "lu";
-pub const __SIZE_FMTx__ = "lx";
-pub const __SIZE_FMTX__ = "lX";
-pub const __WCHAR_TYPE__ = c_int;
-pub const __WINT_TYPE__ = c_uint;
-pub const __SIG_ATOMIC_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 2147483647, .decimal);
-pub const __SIG_ATOMIC_WIDTH__ = @as(c_int, 32);
-pub const __CHAR16_TYPE__ = c_ushort;
-pub const __CHAR32_TYPE__ = c_uint;
-pub const __UINTPTR_TYPE__ = c_ulong;
-pub const __UINTPTR_FMTo__ = "lo";
-pub const __UINTPTR_FMTu__ = "lu";
-pub const __UINTPTR_FMTx__ = "lx";
-pub const __UINTPTR_FMTX__ = "lX";
-pub const __FLT_DENORM_MIN__ = @as(f32, 1.40129846e-45);
-pub const __FLT_HAS_DENORM__ = @as(c_int, 1);
-pub const __FLT_DIG__ = @as(c_int, 6);
-pub const __FLT_DECIMAL_DIG__ = @as(c_int, 9);
-pub const __FLT_EPSILON__ = @as(f32, 1.19209290e-7);
-pub const __FLT_HAS_INFINITY__ = @as(c_int, 1);
-pub const __FLT_HAS_QUIET_NAN__ = @as(c_int, 1);
-pub const __FLT_MANT_DIG__ = @as(c_int, 24);
-pub const __FLT_MAX_10_EXP__ = @as(c_int, 38);
-pub const __FLT_MAX_EXP__ = @as(c_int, 128);
-pub const __FLT_MAX__ = @as(f32, 3.40282347e+38);
-pub const __FLT_MIN_10_EXP__ = -@as(c_int, 37);
-pub const __FLT_MIN_EXP__ = -@as(c_int, 125);
-pub const __FLT_MIN__ = @as(f32, 1.17549435e-38);
-pub const __DBL_DENORM_MIN__ = 4.9406564584124654e-324;
-pub const __DBL_HAS_DENORM__ = @as(c_int, 1);
-pub const __DBL_DIG__ = @as(c_int, 15);
-pub const __DBL_DECIMAL_DIG__ = @as(c_int, 17);
-pub const __DBL_EPSILON__ = 2.2204460492503131e-16;
-pub const __DBL_HAS_INFINITY__ = @as(c_int, 1);
-pub const __DBL_HAS_QUIET_NAN__ = @as(c_int, 1);
-pub const __DBL_MANT_DIG__ = @as(c_int, 53);
-pub const __DBL_MAX_10_EXP__ = @as(c_int, 308);
-pub const __DBL_MAX_EXP__ = @as(c_int, 1024);
-pub const __DBL_MAX__ = 1.7976931348623157e+308;
-pub const __DBL_MIN_10_EXP__ = -@as(c_int, 307);
-pub const __DBL_MIN_EXP__ = -@as(c_int, 1021);
-pub const __DBL_MIN__ = 2.2250738585072014e-308;
-pub const __LDBL_DENORM_MIN__ = @as(c_longdouble, 3.64519953188247460253e-4951);
-pub const __LDBL_HAS_DENORM__ = @as(c_int, 1);
-pub const __LDBL_DIG__ = @as(c_int, 18);
-pub const __LDBL_DECIMAL_DIG__ = @as(c_int, 21);
-pub const __LDBL_EPSILON__ = @as(c_longdouble, 1.08420217248550443401e-19);
-pub const __LDBL_HAS_INFINITY__ = @as(c_int, 1);
-pub const __LDBL_HAS_QUIET_NAN__ = @as(c_int, 1);
-pub const __LDBL_MANT_DIG__ = @as(c_int, 64);
-pub const __LDBL_MAX_10_EXP__ = @as(c_int, 4932);
-pub const __LDBL_MAX_EXP__ = @as(c_int, 16384);
-pub const __LDBL_MAX__ = @as(c_longdouble, 1.18973149535723176502e+4932);
-pub const __LDBL_MIN_10_EXP__ = -@as(c_int, 4931);
-pub const __LDBL_MIN_EXP__ = -@as(c_int, 16381);
-pub const __LDBL_MIN__ = @as(c_longdouble, 3.36210314311209350626e-4932);
-pub const __POINTER_WIDTH__ = @as(c_int, 64);
-pub const __BIGGEST_ALIGNMENT__ = @as(c_int, 16);
-pub const __WINT_UNSIGNED__ = @as(c_int, 1);
-pub const __INT8_TYPE__ = i8;
-pub const __INT8_FMTd__ = "hhd";
-pub const __INT8_FMTi__ = "hhi";
-pub const __INT8_C_SUFFIX__ = "";
-pub const __INT16_TYPE__ = c_short;
-pub const __INT16_FMTd__ = "hd";
-pub const __INT16_FMTi__ = "hi";
-pub const __INT16_C_SUFFIX__ = "";
-pub const __INT32_TYPE__ = c_int;
-pub const __INT32_FMTd__ = "d";
-pub const __INT32_FMTi__ = "i";
-pub const __INT32_C_SUFFIX__ = "";
-pub const __INT64_TYPE__ = c_long;
-pub const __INT64_FMTd__ = "ld";
-pub const __INT64_FMTi__ = "li";
-pub const __UINT8_TYPE__ = u8;
-pub const __UINT8_FMTo__ = "hho";
-pub const __UINT8_FMTu__ = "hhu";
-pub const __UINT8_FMTx__ = "hhx";
-pub const __UINT8_FMTX__ = "hhX";
-pub const __UINT8_C_SUFFIX__ = "";
-pub const __UINT8_MAX__ = @as(c_int, 255);
-pub const __INT8_MAX__ = @as(c_int, 127);
-pub const __UINT16_TYPE__ = c_ushort;
-pub const __UINT16_FMTo__ = "ho";
-pub const __UINT16_FMTu__ = "hu";
-pub const __UINT16_FMTx__ = "hx";
-pub const __UINT16_FMTX__ = "hX";
-pub const __UINT16_C_SUFFIX__ = "";
-pub const __UINT16_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 65535, .decimal);
-pub const __INT16_MAX__ = @as(c_int, 32767);
-pub const __UINT32_TYPE__ = c_uint;
-pub const __UINT32_FMTo__ = "o";
-pub const __UINT32_FMTu__ = "u";
-pub const __UINT32_FMTx__ = "x";
-pub const __UINT32_FMTX__ = "X";
-pub const __UINT32_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_uint, 4294967295, .decimal);
-pub const __INT32_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 2147483647, .decimal);
-pub const __UINT64_TYPE__ = c_ulong;
-pub const __UINT64_FMTo__ = "lo";
-pub const __UINT64_FMTu__ = "lu";
-pub const __UINT64_FMTx__ = "lx";
-pub const __UINT64_FMTX__ = "lX";
-pub const __UINT64_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_ulong, 18446744073709551615, .decimal);
-pub const __INT64_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_long, 9223372036854775807, .decimal);
-pub const __INT_LEAST8_TYPE__ = i8;
-pub const __INT_LEAST8_MAX__ = @as(c_int, 127);
-pub const __INT_LEAST8_WIDTH__ = @as(c_int, 8);
-pub const __INT_LEAST8_FMTd__ = "hhd";
-pub const __INT_LEAST8_FMTi__ = "hhi";
-pub const __UINT_LEAST8_TYPE__ = u8;
-pub const __UINT_LEAST8_MAX__ = @as(c_int, 255);
-pub const __UINT_LEAST8_FMTo__ = "hho";
-pub const __UINT_LEAST8_FMTu__ = "hhu";
-pub const __UINT_LEAST8_FMTx__ = "hhx";
-pub const __UINT_LEAST8_FMTX__ = "hhX";
-pub const __INT_LEAST16_TYPE__ = c_short;
-pub const __INT_LEAST16_MAX__ = @as(c_int, 32767);
-pub const __INT_LEAST16_WIDTH__ = @as(c_int, 16);
-pub const __INT_LEAST16_FMTd__ = "hd";
-pub const __INT_LEAST16_FMTi__ = "hi";
-pub const __UINT_LEAST16_TYPE__ = c_ushort;
-pub const __UINT_LEAST16_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 65535, .decimal);
-pub const __UINT_LEAST16_FMTo__ = "ho";
-pub const __UINT_LEAST16_FMTu__ = "hu";
-pub const __UINT_LEAST16_FMTx__ = "hx";
-pub const __UINT_LEAST16_FMTX__ = "hX";
-pub const __INT_LEAST32_TYPE__ = c_int;
-pub const __INT_LEAST32_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 2147483647, .decimal);
-pub const __INT_LEAST32_WIDTH__ = @as(c_int, 32);
-pub const __INT_LEAST32_FMTd__ = "d";
-pub const __INT_LEAST32_FMTi__ = "i";
-pub const __UINT_LEAST32_TYPE__ = c_uint;
-pub const __UINT_LEAST32_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_uint, 4294967295, .decimal);
-pub const __UINT_LEAST32_FMTo__ = "o";
-pub const __UINT_LEAST32_FMTu__ = "u";
-pub const __UINT_LEAST32_FMTx__ = "x";
-pub const __UINT_LEAST32_FMTX__ = "X";
-pub const __INT_LEAST64_TYPE__ = c_long;
-pub const __INT_LEAST64_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_long, 9223372036854775807, .decimal);
-pub const __INT_LEAST64_WIDTH__ = @as(c_int, 64);
-pub const __INT_LEAST64_FMTd__ = "ld";
-pub const __INT_LEAST64_FMTi__ = "li";
-pub const __UINT_LEAST64_TYPE__ = c_ulong;
-pub const __UINT_LEAST64_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_ulong, 18446744073709551615, .decimal);
-pub const __UINT_LEAST64_FMTo__ = "lo";
-pub const __UINT_LEAST64_FMTu__ = "lu";
-pub const __UINT_LEAST64_FMTx__ = "lx";
-pub const __UINT_LEAST64_FMTX__ = "lX";
-pub const __INT_FAST8_TYPE__ = i8;
-pub const __INT_FAST8_MAX__ = @as(c_int, 127);
-pub const __INT_FAST8_WIDTH__ = @as(c_int, 8);
-pub const __INT_FAST8_FMTd__ = "hhd";
-pub const __INT_FAST8_FMTi__ = "hhi";
-pub const __UINT_FAST8_TYPE__ = u8;
-pub const __UINT_FAST8_MAX__ = @as(c_int, 255);
-pub const __UINT_FAST8_FMTo__ = "hho";
-pub const __UINT_FAST8_FMTu__ = "hhu";
-pub const __UINT_FAST8_FMTx__ = "hhx";
-pub const __UINT_FAST8_FMTX__ = "hhX";
-pub const __INT_FAST16_TYPE__ = c_short;
-pub const __INT_FAST16_MAX__ = @as(c_int, 32767);
-pub const __INT_FAST16_WIDTH__ = @as(c_int, 16);
-pub const __INT_FAST16_FMTd__ = "hd";
-pub const __INT_FAST16_FMTi__ = "hi";
-pub const __UINT_FAST16_TYPE__ = c_ushort;
-pub const __UINT_FAST16_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 65535, .decimal);
-pub const __UINT_FAST16_FMTo__ = "ho";
-pub const __UINT_FAST16_FMTu__ = "hu";
-pub const __UINT_FAST16_FMTx__ = "hx";
-pub const __UINT_FAST16_FMTX__ = "hX";
-pub const __INT_FAST32_TYPE__ = c_int;
-pub const __INT_FAST32_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_int, 2147483647, .decimal);
-pub const __INT_FAST32_WIDTH__ = @as(c_int, 32);
-pub const __INT_FAST32_FMTd__ = "d";
-pub const __INT_FAST32_FMTi__ = "i";
-pub const __UINT_FAST32_TYPE__ = c_uint;
-pub const __UINT_FAST32_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_uint, 4294967295, .decimal);
-pub const __UINT_FAST32_FMTo__ = "o";
-pub const __UINT_FAST32_FMTu__ = "u";
-pub const __UINT_FAST32_FMTx__ = "x";
-pub const __UINT_FAST32_FMTX__ = "X";
-pub const __INT_FAST64_TYPE__ = c_long;
-pub const __INT_FAST64_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_long, 9223372036854775807, .decimal);
-pub const __INT_FAST64_WIDTH__ = @as(c_int, 64);
-pub const __INT_FAST64_FMTd__ = "ld";
-pub const __INT_FAST64_FMTi__ = "li";
-pub const __UINT_FAST64_TYPE__ = c_ulong;
-pub const __UINT_FAST64_MAX__ = @import("std").zig.c_translation.promoteIntLiteral(c_ulong, 18446744073709551615, .decimal);
-pub const __UINT_FAST64_FMTo__ = "lo";
-pub const __UINT_FAST64_FMTu__ = "lu";
-pub const __UINT_FAST64_FMTx__ = "lx";
-pub const __UINT_FAST64_FMTX__ = "lX";
-pub const __USER_LABEL_PREFIX__ = "";
-pub const __FINITE_MATH_ONLY__ = @as(c_int, 0);
-pub const __GNUC_STDC_INLINE__ = @as(c_int, 1);
-pub const __GCC_ATOMIC_TEST_AND_SET_TRUEVAL = @as(c_int, 1);
-pub const __CLANG_ATOMIC_BOOL_LOCK_FREE = @as(c_int, 2);
-pub const __CLANG_ATOMIC_CHAR_LOCK_FREE = @as(c_int, 2);
-pub const __CLANG_ATOMIC_CHAR16_T_LOCK_FREE = @as(c_int, 2);
-pub const __CLANG_ATOMIC_CHAR32_T_LOCK_FREE = @as(c_int, 2);
-pub const __CLANG_ATOMIC_WCHAR_T_LOCK_FREE = @as(c_int, 2);
-pub const __CLANG_ATOMIC_SHORT_LOCK_FREE = @as(c_int, 2);
-pub const __CLANG_ATOMIC_INT_LOCK_FREE = @as(c_int, 2);
-pub const __CLANG_ATOMIC_LONG_LOCK_FREE = @as(c_int, 2);
-pub const __CLANG_ATOMIC_LLONG_LOCK_FREE = @as(c_int, 2);
-pub const __CLANG_ATOMIC_POINTER_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_BOOL_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_CHAR_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_CHAR16_T_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_CHAR32_T_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_WCHAR_T_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_SHORT_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_INT_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_LONG_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_LLONG_LOCK_FREE = @as(c_int, 2);
-pub const __GCC_ATOMIC_POINTER_LOCK_FREE = @as(c_int, 2);
-pub const __NO_INLINE__ = @as(c_int, 1);
-pub const __FLT_EVAL_METHOD__ = @as(c_int, 0);
-pub const __FLT_RADIX__ = @as(c_int, 2);
-pub const __DECIMAL_DIG__ = __LDBL_DECIMAL_DIG__;
-pub const __GCC_ASM_FLAG_OUTPUTS__ = @as(c_int, 1);
-pub const __code_model_small__ = @as(c_int, 1);
-pub const __amd64__ = @as(c_int, 1);
-pub const __amd64 = @as(c_int, 1);
-pub const __x86_64 = @as(c_int, 1);
-pub const __x86_64__ = @as(c_int, 1);
-pub const __SEG_GS = @as(c_int, 1);
-pub const __SEG_FS = @as(c_int, 1);
-pub const __znver1 = @as(c_int, 1);
-pub const __znver1__ = @as(c_int, 1);
-pub const __tune_znver1__ = @as(c_int, 1);
-pub const __REGISTER_PREFIX__ = "";
-pub const __NO_MATH_INLINES = @as(c_int, 1);
-pub const __AES__ = @as(c_int, 1);
-pub const __PCLMUL__ = @as(c_int, 1);
-pub const __LAHF_SAHF__ = @as(c_int, 1);
-pub const __LZCNT__ = @as(c_int, 1);
-pub const __RDRND__ = @as(c_int, 1);
-pub const __FSGSBASE__ = @as(c_int, 1);
-pub const __BMI__ = @as(c_int, 1);
-pub const __BMI2__ = @as(c_int, 1);
-pub const __POPCNT__ = @as(c_int, 1);
-pub const __PRFCHW__ = @as(c_int, 1);
-pub const __RDSEED__ = @as(c_int, 1);
-pub const __ADX__ = @as(c_int, 1);
-pub const __MWAITX__ = @as(c_int, 1);
-pub const __MOVBE__ = @as(c_int, 1);
-pub const __SSE4A__ = @as(c_int, 1);
-pub const __FMA__ = @as(c_int, 1);
-pub const __F16C__ = @as(c_int, 1);
-pub const __SHA__ = @as(c_int, 1);
-pub const __FXSR__ = @as(c_int, 1);
-pub const __XSAVE__ = @as(c_int, 1);
-pub const __XSAVEOPT__ = @as(c_int, 1);
-pub const __XSAVEC__ = @as(c_int, 1);
-pub const __XSAVES__ = @as(c_int, 1);
-pub const __CLFLUSHOPT__ = @as(c_int, 1);
-pub const __CLZERO__ = @as(c_int, 1);
-pub const __CRC32__ = @as(c_int, 1);
-pub const __AVX2__ = @as(c_int, 1);
-pub const __AVX__ = @as(c_int, 1);
-pub const __SSE4_2__ = @as(c_int, 1);
-pub const __SSE4_1__ = @as(c_int, 1);
-pub const __SSSE3__ = @as(c_int, 1);
-pub const __SSE3__ = @as(c_int, 1);
-pub const __SSE2__ = @as(c_int, 1);
-pub const __SSE2_MATH__ = @as(c_int, 1);
-pub const __SSE__ = @as(c_int, 1);
-pub const __SSE_MATH__ = @as(c_int, 1);
-pub const __MMX__ = @as(c_int, 1);
-pub const __GCC_HAVE_SYNC_COMPARE_AND_SWAP_1 = @as(c_int, 1);
-pub const __GCC_HAVE_SYNC_COMPARE_AND_SWAP_2 = @as(c_int, 1);
-pub const __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 = @as(c_int, 1);
-pub const __GCC_HAVE_SYNC_COMPARE_AND_SWAP_8 = @as(c_int, 1);
-pub const __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16 = @as(c_int, 1);
-pub const __SIZEOF_FLOAT128__ = @as(c_int, 16);
-pub const unix = @as(c_int, 1);
-pub const __unix = @as(c_int, 1);
-pub const __unix__ = @as(c_int, 1);
-pub const linux = @as(c_int, 1);
-pub const __linux = @as(c_int, 1);
-pub const __linux__ = @as(c_int, 1);
-pub const __ELF__ = @as(c_int, 1);
-pub const __gnu_linux__ = @as(c_int, 1);
-pub const __FLOAT128__ = @as(c_int, 1);
-pub const __STDC__ = @as(c_int, 1);
-pub const __STDC_HOSTED__ = @as(c_int, 1);
-pub const __STDC_VERSION__ = @as(c_long, 201710);
-pub const __STDC_UTF_16__ = @as(c_int, 1);
-pub const __STDC_UTF_32__ = @as(c_int, 1);
-pub const _DEBUG = @as(c_int, 1);
-pub const __GCC_HAVE_DWARF2_CFI_ASM = @as(c_int, 1);
-pub const TIGR_FIXED = @as(c_int, 0);
-pub const TIGR_AUTO = @as(c_int, 1);
-pub const TIGR_2X = @as(c_int, 2);
-pub const TIGR_3X = @as(c_int, 4);
-pub const TIGR_4X = @as(c_int, 8);
-pub const TIGR_RETINA = @as(c_int, 16);
-pub const TIGR_NOCURSOR = @as(c_int, 32);
-pub const TIGR_FULLSCREEN = @as(c_int, 64);
-pub const TIGRBlitMode = enum_TIGRBlitMode;
+
+/// Returns mouse input for a window.
+/// The value set to "buttons" is a bit set where bits 0, 1 and 2
+/// corresponds to the left, right and middle buttons.
+/// A set bit indicates that a button is held.
+pub inline fn mouse(bmp: *Tigr) Mouse {
+    var x: c_int = undefined;
+    var y: c_int = undefined;
+    var buttons: c_int = undefined;
+    C.tigrMouse(bmp, &x, &y, &buttons);
+    return .{
+        .x = x,
+        .y = y,
+        .left = (buttons & 0b0001) > 0,
+        .right = (buttons & 0b0010) > 0,
+        .middle = (buttons & 0b0100) > 0,
+    };
+}
+pub const touchPoint = C.TigrTouchPoint;
+
+/// Reads touch input for a window.
+/// Returns number of touch points read.
+pub inline fn touch(bmp: *Tigr, points: [*c]touchPoint, maxPoints: c_int) c_int {
+    return C.tigrTouch(bmp, points, maxPoints);
+}
+
+/// Reads the delta of the scroll "wheel" in somewhat platform neutral
+/// units where 1.0 corresponds to a "notch". The actual correlation between
+/// physical movement and this number varies between platforms, input methods
+/// and settings.
+pub inline fn scrollWheel(bmp: *Tigr, x: [*c]f32, y: [*c]f32) void {
+    return C.tigrScrollWheel(bmp, x, y);
+}
+
+/// Reads the keyboard for a window.
+/// Returns non-zero if a key is pressed/held.
+/// keyDown tests for the initial press, keyHeld repeats each frame.
+pub inline fn keyDown(bmp: *Tigr, key: Key) bool {
+    return C.tigrKeyDown(bmp, @intFromEnum(key)) != 0;
+}
+
+/// Reads the keyboard for a window.
+/// Returns non-zero if a key is pressed/held.
+/// keyDown tests for the initial press, keyHeld repeats each frame.
+pub inline fn keyHeld(bmp: *Tigr, key: Key) bool {
+    return C.tigrKeyHeld(bmp, @intFromEnum(key)) != 0;
+}
+
+/// Reads character input for a window.
+/// Returns the Unicode value of the last key pressed, or 0 if none.
+pub inline fn readChar(bmp: *Tigr) ?Key {
+    const char = C.tigrReadChar(bmp);
+    if (char == 0) return null;
+    return @enumFromInt(char);
+}
+
+/// Loads a PNG from a file. (fileName is UTF-8)
+/// On error, returns NULL and sets errno.
+pub inline fn loadImage(fileName: [:0]const u8) *Tigr {
+    return C.tigrLoadImage(fileName.ptr);
+}
+
+/// Loads a PNG from memory.
+/// On error, returns NULL and sets errno.
+pub inline fn loadImageMem(data: ?*const anyopaque, length: c_int) *Tigr {
+    return C.tigrLoadImageMem(data, length);
+}
+
+/// Saves a PNG to a file. (fileName is UTF-8)
+/// On error, returns zero and sets errno.
+pub inline fn saveImage(fileName: [:0]const u8, bmp: *Tigr) c_int {
+    return C.tigrSaveImage(fileName.ptr, bmp);
+}
+
+/// Returns the amount of time elapsed since time was last called,
+/// or zero on the first call.
+pub inline fn time() f32 {
+    return C.tigrTime();
+}
+
+/// Displays an error message and quits. (UTF-8)
+/// 'bmp' can be NULL.
+pub const tigrError = C.tigrError;
+
+/// Reads an entire file into memory. (fileName is UTF-8)
+/// Free it yourself after with 'free'.
+/// On error, returns NULL and sets errno.
+/// TIGR will automatically append a NUL terminator byte
+/// to the end (not included in the length)
+pub inline fn readFile(fileName: [:0]const u8, length: [*c]c_int) ?*anyopaque {
+    return C.tigrReadFile(fileName.ptr, length);
+}
+
+/// Decompresses DEFLATEd zip/zlib data into a buffer.
+/// Returns non-zero on success.
+pub inline fn inflate(out: ?*anyopaque, outlen: c_uint, in: ?*const anyopaque, inlen: c_uint) c_int {
+    return C.tigrInflate(out, outlen, in, inlen);
+}
+
+/// Decodes a single UTF8 codepoint and returns the next pointer.
+pub inline fn decodeUTF8(text: [:0]const u8, cp: [*c]c_int) [*c]const u8 {
+    return C.tigrDecodeUTF8(text.ptr, cp);
+}
+
+/// Encodes a single UTF8 codepoint and returns the next pointer.
+pub inline fn encodeUTF8(text: [*c]u8, cp: c_int) [*c]u8 {
+    return C.tigrEncodeUTF8(text, cp);
+}
+
+/// Do not call this function.
+/// It exists so that the inline functions get compiled.
+pub fn compileAllFunctions() void {
+    _ = initWindow(undefined, undefined, undefined, .{});
+    _ = initBitmap(undefined, undefined);
+    free(undefined);
+    _ = closed(undefined);
+    update(undefined);
+    _ = beginOpenGL(undefined);
+    setPostShader(undefined, undefined, undefined);
+    setPostFX(undefined, undefined, undefined, undefined, undefined);
+    _ = get(undefined, undefined, undefined);
+    plot(undefined, undefined, undefined, undefined);
+    clear(undefined, undefined);
+    fill(undefined, undefined, undefined, undefined, undefined, undefined);
+    line(undefined, undefined, undefined, undefined, undefined, undefined);
+    rect(undefined, undefined, undefined, undefined, undefined, undefined);
+    fillRect(undefined, undefined, undefined, undefined, undefined, undefined);
+    circle(undefined, undefined, undefined, undefined, undefined);
+    fillCircle(undefined, undefined, undefined, undefined, undefined);
+    clip(undefined, undefined, undefined, undefined, undefined);
+    blit(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+    blitAlpha(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+    blitTint(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+    blitMode(undefined, undefined);
+    _ = loadFont(undefined, undefined);
+    freeFont(undefined);
+    print(undefined, null, undefined, undefined, undefined, undefined);
+    _ = textWidth(null, undefined);
+    _ = textHeight(null, undefined);
+    _ = mouse(undefined);
+    _ = touch(undefined, undefined, undefined);
+    scrollWheel(undefined, undefined, undefined);
+    _ = keyDown(undefined, undefined);
+    _ = keyHeld(undefined, undefined);
+    _ = readChar(undefined);
+    _ = loadImage(undefined);
+    _ = loadImageMem(undefined, undefined);
+    _ = saveImage(undefined, undefined);
+    _ = time();
+    _ = readFile(undefined, undefined);
+    _ = inflate(undefined, undefined, undefined, undefined);
+    _ = decodeUTF8(undefined, undefined);
+    _ = encodeUTF8(undefined, undefined);
+}
+
+test "refAllDecls" {
+    _ = std.testing.refAllDeclsRecursive(@This());
+}

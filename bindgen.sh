@@ -2,4 +2,4 @@
 
 git submodule update --init --recursive
 
-zig translate-c libs/tigr/tigr.h > src/main.zig
+zig translate-c libs/tigr/tigr.h > src/c.zig
