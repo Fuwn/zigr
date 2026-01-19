@@ -2,8 +2,8 @@ const std = @import("std");
 
 fn apply(b: *std.Build, lib: *std.Build.Step.Compile) void {
     lib.root_module.link_libc = true;
-    lib.root_module.addIncludePath(b.path("libs/tigr"));
-    lib.root_module.addCSourceFile(.{ .file = b.path("libs/tigr/tigr.c") });
+    lib.root_module.addIncludePath(b.dependency("tigr", .{}).path(""));
+    lib.root_module.addCSourceFile(.{ .file = b.dependency("tigr", .{}).path("tigr.c") });
     lib.root_module.linkSystemLibrary("X11", .{});
     lib.root_module.linkSystemLibrary("GL", .{});
     lib.root_module.linkSystemLibrary("GLU", .{});

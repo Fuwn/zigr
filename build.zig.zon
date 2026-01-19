@@ -1,7 +1,12 @@
 .{
     .name = .zigr,
     .version = "3.2.2",
-    .dependencies = .{},
+    .dependencies = .{
+        .tigr = .{
+            .url = "git+https://github.com/erkkah/tigr#f7bf2abbf6b26e649ced5691003e87b61c03762e",
+            .hash = "N-V-__8AAIdnEACvJuP1P4YvA1yDg99-JRQFBu_23aLlCjB5",
+        },
+    },
     .minimum_zig_version = "0.15.2",
     .paths = .{""},
     .fingerprint = 0xf677823b7201c08d,
