@@ -13,9 +13,17 @@ pub fn build(b: *std.Build) void {
     zigr_mod.link_libc = true;
     zigr_mod.addIncludePath(b.dependency("tigr", .{}).path(""));
     zigr_mod.addCSourceFile(.{ .file = b.dependency("tigr", .{}).path("tigr.c") });
-    zigr_mod.linkSystemLibrary("X11", .{});
-    zigr_mod.linkSystemLibrary("GL", .{});
-    zigr_mod.linkSystemLibrary("GLU", .{});
+    switch (target.result.os.tag) {
+        .windows => {
+            zigr_mod.linkSystemLibrary("opengl32", .{});
+            zigr_mod.linkSystemLibrary("gdi32", .{});
+        },
+        else => {
+            zigr_mod.linkSystemLibrary("X11", .{});
+            zigr_mod.linkSystemLibrary("GL", .{});
+            zigr_mod.linkSystemLibrary("GLU", .{});
+        },
+    }
 
     const lib = b.addLibrary(.{
         .linkage = .static,
