@@ -1,0 +1,38 @@
+diff --git b/src/c.zig a/src/c.zig
+index 19694cd..dfb9b5f 100644
+--- b/src/c.zig
++++ a/src/c.zig
+@@ -54,23 +54,8 @@ pub const __builtin_assume = @import("std").zig.c_builtins.__builtin_assume;
+ pub const __builtin_unreachable = @import("std").zig.c_builtins.__builtin_unreachable;
+ pub const __builtin_constant_p = @import("std").zig.c_builtins.__builtin_constant_p;
+ pub const __builtin_mul_overflow = @import("std").zig.c_builtins.__builtin_mul_overflow;
+-pub const TPixel = extern struct {
+-    r: u8 = @import("std").mem.zeroes(u8),
+-    g: u8 = @import("std").mem.zeroes(u8),
+-    b: u8 = @import("std").mem.zeroes(u8),
+-    a: u8 = @import("std").mem.zeroes(u8),
+-};
+-pub const struct_Tigr = extern struct {
+-    w: c_int = @import("std").mem.zeroes(c_int),
+-    h: c_int = @import("std").mem.zeroes(c_int),
+-    cx: c_int = @import("std").mem.zeroes(c_int),
+-    cy: c_int = @import("std").mem.zeroes(c_int),
+-    cw: c_int = @import("std").mem.zeroes(c_int),
+-    ch: c_int = @import("std").mem.zeroes(c_int),
+-    pix: [*c]TPixel = @import("std").mem.zeroes([*c]TPixel),
+-    handle: ?*anyopaque = @import("std").mem.zeroes(?*anyopaque),
+-    blitMode: c_int = @import("std").mem.zeroes(c_int),
+-};
++pub const TPixel = @import("main.zig").Pixel;
++pub const struct_Tigr = @import("main.zig").Tigr;
+ pub const Tigr = struct_Tigr;
+ pub extern fn tigrWindow(w: c_int, h: c_int, title: [*c]const u8, flags: c_int) [*c]Tigr;
+ pub extern fn tigrBitmap(w: c_int, h: c_int) [*c]Tigr;
+@@ -231,7 +216,6 @@ pub extern fn tigrScrollWheel(bmp: [*c]Tigr, x: [*c]f32, y: [*c]f32) void;
+ pub extern fn tigrKeyDown(bmp: [*c]Tigr, key: c_int) c_int;
+ pub extern fn tigrKeyHeld(bmp: [*c]Tigr, key: c_int) c_int;
+ pub extern fn tigrReadChar(bmp: [*c]Tigr) c_int;
+-pub extern fn tigrShowKeyboard(show: c_int) void;
+ pub extern fn tigrLoadImage(fileName: [*c]const u8) [*c]Tigr;
+ pub extern fn tigrLoadImageMem(data: ?*const anyopaque, length: c_int) [*c]Tigr;
+ pub extern fn tigrSaveImage(fileName: [*c]const u8, bmp: [*c]Tigr) c_int;
