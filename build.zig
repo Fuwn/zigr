@@ -18,6 +18,16 @@ pub fn build(b: *std.Build) void {
             zigr_mod.linkSystemLibrary("opengl32", .{});
             zigr_mod.linkSystemLibrary("gdi32", .{});
         },
+        .macos => {
+            if (std.process.getEnvVarOwned(b.graph.arena, "SDKROOT")) |sdkroot| {
+                zigr_mod.addFrameworkPath(std.Build.LazyPath{
+                    .cwd_relative = b.fmt("{s}/System/Library/Frameworks", .{sdkroot}),
+                });
+            } else |_| {}
+
+            zigr_mod.linkFramework("Cocoa", .{});
+            zigr_mod.linkFramework("OpenGL", .{});
+        },
         else => {
             zigr_mod.linkSystemLibrary("X11", .{});
             zigr_mod.linkSystemLibrary("GL", .{});
